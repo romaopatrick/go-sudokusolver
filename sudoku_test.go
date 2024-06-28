@@ -18,106 +18,95 @@ type testInput struct {
 }
 
 const testJsonPath = "./tests/test.json"
-const testInputPath = "./tests/input.txt"
+const testInputPath = "./tests/input_3.txt"
 
-func TestGetColumn(t *testing.T) {
+func TestIsSafeCol(t *testing.T) {
 	f, _ := os.ReadFile(testJsonPath)
 	tIn := &testInput{}
 	json.Unmarshal(f, tIn)
 
 	inputs := []struct {
-		in int
-		e  []int
+		inIdx int
+		inNum int
+		e     bool
 	}{
-		{0, []int{0, 0, 8, 0, 3, 0, 0, 2, 7}},
-		{1, []int{7, 4, 0, 9, 5, 0, 0, 1, 0}},
-		{17, []int{3, 0, 0, 0, 0, 8, 0, 0, 0}},
-		{40, []int{0, 0, 3, 5, 6, 0, 0, 0, 8}},
-		{50, []int{0, 9, 4, 2, 0, 5, 9, 0, 0}},
+		{0, 8, false},
+		{1, 2, true},
+		{17, 3, false},
+		{40, 6, false},
+		{50, 9, false},
 	}
 
-	s := sudoku.NewSudoku(9, 9, 3, 3, tIn.Input)
+	s := sudoku.NewSudoku(9, 9, 3, 3, tIn.Input, true)
 	a := assert.New(t)
 
-	for _, input := range inputs {
-		g := s.GetColumn(input.in)
-
-		a.EqualValues(input.e, g)
+	for idx, input := range inputs {
+		if !a.EqualValues(input.e, s.IsSafeCol(input.inIdx, input.inNum)) {
+			a.FailNowf("failed on: ", "%v idx", idx)
+		}
 	}
 }
 
-func TestGetRow(t *testing.T) {
+func TestIsSafeRow(t *testing.T) {
 	f, _ := os.ReadFile(testJsonPath)
 	tIn := &testInput{}
 	json.Unmarshal(f, tIn)
 
 	inputs := []struct {
-		in int
-		e  []int
+		inIdx int
+		inNum int
+		e     bool
 	}{
-		{0, []int{0, 7, 0, 0, 0, 0, 0, 4, 3}},
-		{2, []int{0, 7, 0, 0, 0, 0, 0, 4, 3}},
-		{17, []int{0, 4, 0, 0, 0, 9, 6, 1, 0}},
-		{80, []int{7, 0, 4, 0, 8, 0, 2, 0, 0}},
+		{0, 7, false},
+		{0, 1, true},
+		{2, 4, false},
+		{2, 8, true},
+		{17, 9, false},
+		{80, 1, true},
 	}
 
-	s := sudoku.NewSudoku(9, 9, 3, 3, tIn.Input)
+	s := sudoku.NewSudoku(9, 9, 3, 3, tIn.Input, true)
 
 	a := assert.New(t)
-	for _, input := range inputs {
-		g := s.GetRow(input.in)
-
-		a.EqualValues(input.e, g)
+	for idx, input := range inputs {
+		if !a.EqualValues(input.e, s.IsSafeRow(input.inIdx, input.inNum)) {
+			a.FailNowf("failed on: ", "%v idx", idx)
+		}
 	}
 }
 
-func TestCountSquares(t *testing.T) {
-	f, _ := os.ReadFile(testJsonPath)
-	tIn := &testInput{}
-	json.Unmarshal(f, tIn)
-
-	s := sudoku.NewSudoku(9, 9, 3, 3, tIn.Input)
-	a := assert.New(t)
-
-	g := s.CountSquares()
-	e := 9
-
-	a.EqualValues(e, g)
-}
-
-func TestGetSquare(t *testing.T) {
+func TestIsSafeSquare(t *testing.T) {
 	f, _ := os.ReadFile(testJsonPath)
 	tIn := &testInput{}
 	json.Unmarshal(f, tIn)
 
 	inputs := []struct {
-		in int
-		e  []int
+		inIdx int
+		inNum int
+		e     bool
 	}{
-		{0, []int{0, 7, 0, 0, 4, 0, 8, 0, 0}},
-		{1, []int{0, 7, 0, 0, 4, 0, 8, 0, 0}},
-		{2, []int{0, 7, 0, 0, 4, 0, 8, 0, 0}},
-		{9, []int{0, 7, 0, 0, 4, 0, 8, 0, 0}},
-		{10, []int{0, 7, 0, 0, 4, 0, 8, 0, 0}},
-		{11, []int{0, 7, 0, 0, 4, 0, 8, 0, 0}},
-		{18, []int{0, 7, 0, 0, 4, 0, 8, 0, 0}},
-		{19, []int{0, 7, 0, 0, 4, 0, 8, 0, 0}},
-		{20, []int{0, 7, 0, 0, 4, 0, 8, 0, 0}},
-
-		{4, []int{0, 0, 0, 0, 0, 9, 6, 3, 4}},
-		{13, []int{0, 0, 0, 0, 0, 9, 6, 3, 4}},
-
-		{37, []int{0, 9, 4, 3, 5, 8, 0, 0, 8}},
+		{0, 7, false},
+		{1, 1, true},
+		{2, 8, false},
+		{9, 9, true},
+		{10, 6, true},
+		{11, 6, true},
+		{18, 8, false},
+		{19, 3, true},
+		{20, 4, false},
+		{4, 6, false},
+		{13, 1, true},
+		{37, 8, false},
 	}
 
-	s := sudoku.NewSudoku(9, 9, 3, 3, tIn.Input)
+	s := sudoku.NewSudoku(9, 9, 3, 3, tIn.Input, true)
 
 	a := assert.New(t)
 
-	for _, input := range inputs {
-		g := s.GetSquare(input.in)
-
-		a.EqualValues(input.e, g)
+	for idx, input := range inputs {
+		if !a.EqualValues(input.e, s.IsSafeSquare(input.inIdx, input.inNum)) {
+			a.FailNowf("failed on: ", "%v idx", idx)
+		}
 	}
 }
 
@@ -141,7 +130,7 @@ func TestSolve(t *testing.T) {
 		out[i], _ = strconv.Atoi(c)
 	}
 
-	s := sudoku.NewSudoku(9, 9, 3, 3, in)
+	s := sudoku.NewSudoku(9, 9, 3, 3, in, true)
 	a := assert.New(t)
 
 	err := s.Solve()
