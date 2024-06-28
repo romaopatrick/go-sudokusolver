@@ -1,4 +1,4 @@
-package sudoku_test
+package gosudokusolver_test
 
 import (
 	"encoding/json"
